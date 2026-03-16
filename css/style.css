@@ -1,0 +1,417 @@
+/* ============================================
+   寻道 - Xundao Style Sheet
+   Chinese Ink Wash (Shuimo) Theme
+   ============================================ */
+
+/* 1. CSS Variables */
+:root {
+    --paper: #F4F2EC;
+    --ink: #2A2927;
+    --ink-light: #5A5855;
+    --slate: #8A8B86;
+    --umber: #6A5C52;
+    --mist: #A3ADAA;
+    --white: #EBEBE6;
+    --margin-height: 18vh;
+
+    /* Typography */
+    --font-cn: 'Noto Serif SC', serif;
+    --font-en: 'Cormorant Garamond', serif;
+
+    /* Transitions */
+    --transition-slow: 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+    --transition-medium: 0.4s ease;
+    --transition-fast: 0.2s ease;
+}
+
+
+/* 2. Base Reset */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body, html {
+    width: 100%;
+    height: 100%;
+    background-color: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-cn);
+    overflow-x: hidden;
+}
+
+::selection {
+    background-color: var(--ink-light);
+    color: var(--paper);
+}
+
+
+/* 3. Typography */
+body {
+    font-weight: 400;
+    line-height: 1.8;
+    letter-spacing: 0.02em;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 400;
+    line-height: 1.4;
+}
+
+a {
+    color: var(--ink);
+    text-decoration: none;
+    transition: color var(--transition-medium);
+}
+
+a:hover {
+    color: var(--ink-light);
+}
+
+
+/* 4. Layout Structure */
+.viewport {
+    position: relative;
+    width: 100vw;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.margin-band {
+    height: var(--margin-height);
+    width: 100%;
+    background-color: var(--paper);
+    z-index: 10;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.canvas-area {
+    flex-grow: 1;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+.content-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 20;
+    pointer-events: none;
+}
+
+.interactive {
+    pointer-events: auto;
+}
+
+
+/* 5. Navigation */
+.nav-links {
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+}
+
+.nav-links:hover .nav-item {
+    opacity: 0.3;
+}
+
+.nav-item {
+    text-decoration: none;
+    color: var(--ink);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    transition: opacity var(--transition-slow);
+    cursor: pointer;
+}
+
+.nav-item:hover {
+    opacity: 1 !important;
+}
+
+.nav-cn {
+    font-size: 1.2rem;
+    letter-spacing: 0.3em;
+    margin-bottom: 0.2rem;
+    position: relative;
+}
+
+.nav-cn::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 0%;
+    height: 1px;
+    background-color: var(--ink);
+    transition: width var(--transition-slow);
+}
+
+.nav-item:hover .nav-cn::after {
+    width: 80%;
+}
+
+.nav-en {
+    font-family: var(--font-en);
+    font-size: 0.8rem;
+    font-style: italic;
+    letter-spacing: 0.1em;
+    color: var(--ink-light);
+}
+
+
+/* 6. Buttons */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.8em 2em;
+    font-family: var(--font-cn);
+    font-size: 1rem;
+    letter-spacing: 0.2em;
+    border: 1px solid var(--ink);
+    background-color: transparent;
+    color: var(--ink);
+    cursor: pointer;
+    transition: all var(--transition-medium);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background-color: var(--ink);
+    transition: left var(--transition-slow);
+    z-index: -1;
+}
+
+.btn:hover {
+    color: var(--paper);
+}
+
+.btn:hover::before {
+    left: 0;
+}
+
+.btn-outline {
+    background-color: transparent;
+    border: 1px solid var(--ink);
+}
+
+.btn-solid {
+    background-color: var(--ink);
+    color: var(--paper);
+}
+
+.btn-solid::before {
+    background-color: var(--ink-light);
+}
+
+.btn:active {
+    transform: scale(0.98);
+}
+
+
+/* 7. Forms */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    display: block;
+    font-size: 0.875rem;
+    letter-spacing: 0.15em;
+    color: var(--ink-light);
+    margin-bottom: 0.5rem;
+}
+
+.form-input,
+.form-textarea {
+    width: 100%;
+    padding: 0.8em 1em;
+    font-family: var(--font-cn);
+    font-size: 1rem;
+    color: var(--ink);
+    background-color: transparent;
+    border: 1px solid var(--slate);
+    border-radius: 0;
+    transition: border-color var(--transition-medium), box-shadow var(--transition-medium);
+    outline: none;
+}
+
+.form-input:focus,
+.form-textarea:focus {
+    border-color: var(--ink);
+    box-shadow: 0 0 0 2px rgba(42, 41, 39, 0.1);
+}
+
+.form-input::placeholder,
+.form-textarea::placeholder {
+    color: var(--mist);
+    font-style: italic;
+}
+
+.form-textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.form-input:disabled,
+.form-textarea:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: var(--white);
+}
+
+
+/* 8. Cards */
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2rem;
+}
+
+.card {
+    background-color: var(--white);
+    border: 1px solid var(--slate);
+    padding: 1.5rem;
+    transition: transform var(--transition-medium), box-shadow var(--transition-medium), border-color var(--transition-medium);
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(42, 41, 39, 0.1);
+    border-color: var(--ink);
+}
+
+.card-title {
+    font-size: 1.25rem;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+    color: var(--ink);
+}
+
+.card-description {
+    font-size: 0.9rem;
+    color: var(--ink-light);
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+.card-meta {
+    font-size: 0.75rem;
+    color: var(--mist);
+    letter-spacing: 0.1em;
+}
+
+
+/* 9. Utility Classes */
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+
+.text-ink { color: var(--ink); }
+.text-ink-light { color: var(--ink-light); }
+.text-slate { color: var(--slate); }
+
+.bg-paper { background-color: var(--paper); }
+.bg-white { background-color: var(--white); }
+
+.hidden { display: none; }
+.visible { visibility: visible; }
+.invisible { visibility: hidden; }
+
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.items-center { align-items: center; }
+.justify-center { justify-content: center; }
+.justify-between { justify-content: space-between; }
+.gap-1 { gap: 0.5rem; }
+.gap-2 { gap: 1rem; }
+.gap-3 { gap: 1.5rem; }
+.gap-4 { gap: 2rem; }
+
+.mt-1 { margin-top: 0.5rem; }
+.mt-2 { margin-top: 1rem; }
+.mt-3 { margin-top: 1.5rem; }
+.mt-4 { margin-top: 2rem; }
+
+.mb-1 { margin-bottom: 0.5rem; }
+.mb-2 { margin-bottom: 1rem; }
+.mb-3 { margin-bottom: 1.5rem; }
+.mb-4 { margin-bottom: 2rem; }
+
+.p-1 { padding: 0.5rem; }
+.p-2 { padding: 1rem; }
+.p-3 { padding: 1.5rem; }
+.p-4 { padding: 2rem; }
+
+/* 10. Responsive */
+@media (max-width: 1024px) {
+    .nav-links {
+        gap: 2rem;
+    }
+
+    .card-grid {
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    :root {
+        --margin-height: 12vh;
+    }
+
+    html {
+        font-size: 14px;
+    }
+
+    .nav-links {
+        gap: 1.5rem;
+    }
+
+    .nav-cn {
+        font-size: 1rem;
+    }
+
+    .nav-en {
+        font-size: 0.7rem;
+    }
+
+    .card-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .btn {
+        padding: 0.6em 1.5em;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .form-input,
+    .form-textarea {
+        font-size: 0.9rem;
+    }
+
+    .card {
+        padding: 1rem;
+    }
+}
