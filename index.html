@@ -7,14 +7,14 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,400&family=Noto+Serif+SC:wght@300;400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=Noto+Serif+SC:wght@300;400;500&display=swap" rel="stylesheet">
 
     <style>
         :root {
             --paper: #F4F2EC;
             --ink: #2A2927;
             --ink-light: #5A5855;
-            --margin-height: 18vh;
+            --ink-faint: rgba(42, 41, 39, 0.15);
         }
 
         * {
@@ -30,10 +30,14 @@
             color: var(--ink);
             font-family: 'Noto Serif SC', serif;
             overflow: hidden;
-            selection-background: var(--ink-light);
-            selection-color: var(--paper);
         }
 
+        ::selection {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        /* 主容器 - 全屏布局 */
         .viewport {
             position: relative;
             width: 100vw;
@@ -42,110 +46,131 @@
             flex-direction: column;
         }
 
+        /* 留白区域 */
         .margin-band {
-            height: var(--margin-height);
-            width: 100%;
-            background-color: var(--paper);
-            z-index: 10;
+            flex: 0 0 18vh;
             position: relative;
+            z-index: 10;
         }
 
+        /* 画布区域 - 承载 WebGL */
         .canvas-area {
-            flex-grow: 1;
-            width: 100%;
+            flex: 1;
             position: relative;
             overflow: hidden;
         }
 
         #webgl-container {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            inset: 0;
             z-index: 1;
             pointer-events: none;
         }
 
+        /* 内容层 */
         .content-layer {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            inset: 0;
             z-index: 20;
-            pointer-events: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .interactive {
             pointer-events: auto;
         }
 
+        /* 居中内容容器 */
+        .center-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            animation: fadeIn 1.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 主标题 */
         .primary-title {
-            position: absolute;
-            top: calc(var(--margin-height) - 2vh);
-            right: 12vw;
-            writing-mode: vertical-rl;
-            text-orientation: upright;
-            font-size: 2.8rem;
+            writing-mode: horizontal-tb;
+            text-orientation: mixed;
+            font-size: clamp(2rem, 5vw, 3.5rem);
             font-weight: 300;
-            letter-spacing: 0.8em;
-            line-height: 2;
+            letter-spacing: 0.5em;
             color: var(--ink);
-            text-shadow: 0 0 20px rgba(244, 242, 236, 0.5);
+            margin-bottom: 2rem;
+            text-shadow: 0 2px 20px rgba(244, 242, 236, 0.8);
         }
 
-        .primary-title span {
-            display: inline-block;
-            margin-bottom: 0.2em;
+        .title-line {
+            display: block;
+            animation: slideUp 1s ease-out backwards;
         }
 
+        .title-line:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 副标题块 */
         .secondary-block {
-            position: absolute;
-            bottom: calc(var(--margin-height) + 15vh);
-            right: 18vw;
             font-family: 'Cormorant Garamond', serif;
-            text-align: left;
+            margin-bottom: 3rem;
+            animation: fadeIn 1.5s ease-out 0.4s backwards;
         }
 
         .eng-title {
-            font-size: 1.4rem;
+            font-size: clamp(1rem, 2vw, 1.4rem);
             font-weight: 400;
-            letter-spacing: 0.05em;
-            margin-bottom: 0.5rem;
+            letter-spacing: 0.15em;
+            margin-bottom: 1rem;
             color: var(--ink);
         }
 
+        .author-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
         .author-name {
-            font-size: 1.2rem;
-            font-weight: 400;
-            letter-spacing: 0.1em;
-            margin-bottom: 0.2rem;
+            font-size: 1rem;
+            letter-spacing: 0.2em;
+        }
+
+        .separator {
+            color: var(--ink-light);
+            font-size: 0.8rem;
         }
 
         .cn-name {
-            font-family: 'Noto Serif SC', serif;
-            font-size: 1.1rem;
-            font-weight: 400;
-            letter-spacing: 0.5em;
-            margin-bottom: 0.8rem;
+            font-size: 0.95rem;
+            letter-spacing: 0.6em;
         }
 
         .role {
-            font-family: 'Noto Serif SC', serif;
-            font-size: 0.75rem;
-            font-weight: 400;
-            letter-spacing: 0.2em;
+            font-size: 0.7rem;
+            letter-spacing: 0.3em;
             color: var(--ink-light);
+            margin-top: 0.8rem;
         }
 
+        /* 导航链接 */
         .nav-links {
-            position: absolute;
-            top: 40vh;
-            left: 15vw;
             display: flex;
-            flex-direction: column;
             gap: 3rem;
+            animation: fadeIn 1.5s ease-out 0.6s backwards;
         }
 
         .nav-item {
@@ -153,76 +178,91 @@
             color: var(--ink);
             display: flex;
             flex-direction: column;
-            align-items: flex-start;
-            transition: opacity 0.6s ease;
+            align-items: center;
+            transition: all 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+            position: relative;
+            padding: 0.5rem 0;
         }
 
-        .nav-links:hover .nav-item {
-            opacity: 0.3;
+        .nav-item::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 1px;
+            background: var(--ink);
+            transition: all 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+            transform: translateX(-50%);
         }
 
-        .nav-links .nav-item:hover {
-            opacity: 1;
+        .nav-item:hover::after {
+            width: 100%;
+        }
+
+        .nav-item:hover {
+            color: var(--ink);
         }
 
         .nav-cn {
-            font-size: 1.2rem;
-            letter-spacing: 0.3em;
-            margin-bottom: 0.2rem;
-            position: relative;
-        }
-
-        .nav-cn::after {
-            content: '';
-            position: absolute;
-            bottom: -4px;
-            left: 0;
-            width: 0%;
-            height: 1px;
-            background-color: var(--ink);
-            transition: width 0.6s cubic-bezier(0.19, 1, 0.22, 1);
-        }
-
-        .nav-item:hover .nav-cn::after {
-            width: 80%;
+            font-size: 0.95rem;
+            letter-spacing: 0.4em;
+            margin-bottom: 0.3rem;
         }
 
         .nav-en {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             font-style: italic;
-            letter-spacing: 0.1em;
+            letter-spacing: 0.15em;
             color: var(--ink-light);
         }
 
+        /* 底部标记 */
         .footer-mark {
             position: absolute;
-            bottom: calc(var(--margin-height) / 2);
-            left: 8vw;
-            font-size: 0.8rem;
-            letter-spacing: 0.2em;
+            bottom: 3vh;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.7rem;
+            letter-spacing: 0.25em;
             color: var(--ink-light);
-            transform: translateY(50%);
+            animation: fadeIn 1.5s ease-out 0.8s backwards;
         }
 
-        .floating-poem {
-            position: absolute;
-            top: 25vh;
-            right: 40vw;
-            writing-mode: vertical-rl;
-            font-size: 0.9rem;
-            color: var(--ink-light);
-            letter-spacing: 0.5em;
-            line-height: 2.5;
-            opacity: 0.7;
-            mix-blend-mode: multiply;
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .nav-links {
+                gap: 2rem;
+            }
+
+            .nav-cn {
+                font-size: 0.85rem;
+            }
+
+            .primary-title {
+                letter-spacing: 0.3em;
+            }
+
+            .margin-band {
+                flex: 0 0 12vh;
+            }
         }
 
-        @media (max-width: 1024px) {
-            .primary-title { right: 8vw; font-size: 2.2rem; }
-            .secondary-block { right: 10vw; bottom: calc(var(--margin-height) + 10vh); }
-            .nav-links { left: 10vw; }
-            .floating-poem { display: none; }
+        @media (max-width: 480px) {
+            .nav-links {
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+
+            .author-row {
+                flex-direction: column;
+                gap: 0.3rem;
+            }
+
+            .separator {
+                display: none;
+            }
         }
     </style>
 </head>
@@ -237,40 +277,40 @@
         <div class="margin-band"></div>
 
         <div class="content-layer">
-            <div class="primary-title">
-                天地蜉蝣<br>
-                沧海一粟
+            <div class="center-container">
+                <h1 class="primary-title">
+                    <span class="title-line">天地蜉蝣</span>
+                    <span class="title-line">沧海一粟</span>
+                </h1>
+
+                <div class="secondary-block interactive">
+                    <div class="eng-title">Chronicles of Solitude</div>
+                    <div class="author-row">
+                        <span class="author-name">Gu Yun</span>
+                        <span class="separator">·</span>
+                        <span class="cn-name">孤云录</span>
+                    </div>
+                    <div class="role">数字修真者</div>
+                </div>
+
+                <nav class="nav-links interactive">
+                    <a href="index.html" class="nav-item">
+                        <span class="nav-cn">首页</span>
+                        <span class="nav-en">Home</span>
+                    </a>
+                    <a href="products.html" class="nav-item">
+                        <span class="nav-cn">炼器坊</span>
+                        <span class="nav-en">Artifacts</span>
+                    </a>
+                    <a href="admin.html" class="nav-item">
+                        <span class="nav-cn">洞府</span>
+                        <span class="nav-en">Dwelling</span>
+                    </a>
+                </nav>
             </div>
 
-            <div class="secondary-block interactive">
-                <div class="eng-title">Chronicles of Solitude</div>
-                <div class="author-name">Gu Yun</div>
-                <div class="cn-name">孤 云 · 录</div>
-                <div class="role">数字修真者 撰</div>
-            </div>
-
-            <nav class="nav-links interactive">
-                <a href="index.html" class="nav-item">
-                    <span class="nav-cn">首页</span>
-                    <span class="nav-en">Home</span>
-                </a>
-                <a href="products.html" class="nav-item">
-                    <span class="nav-cn">炼器坊</span>
-                    <span class="nav-en">Artifacts</span>
-                </a>
-                <a href="admin.html" class="nav-item">
-                    <span class="nav-cn">洞府</span>
-                    <span class="nav-en">Dwelling</span>
-                </a>
-            </nav>
-
-            <div class="floating-poem">
-                心若冰清，天塌不惊。<br>
-                万变犹定，神怡气静。
-            </div>
-
-            <div class="footer-mark interactive">
-                甲辰年 · 个人独立站
+            <div class="footer-mark">
+                甲辰年 · 寻道
             </div>
         </div>
     </div>
@@ -279,9 +319,8 @@
     <script>
         const container = document.getElementById('webgl-container');
         const scene = new THREE.Scene();
-
         const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
-        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: false });
+        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
 
         renderer.setSize(container.clientWidth, container.clientHeight);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -353,7 +392,7 @@
 
                 float f = fbm(st + r);
 
-                vec3 colorPaper = vec3(0.82, 0.80, 0.77);
+                vec3 colorPaper = vec3(0.96, 0.95, 0.93);
                 vec3 colorSlate = vec3(0.54, 0.55, 0.53);
                 vec3 colorUmber = vec3(0.42, 0.36, 0.32);
                 vec3 colorMist = vec3(0.64, 0.68, 0.67);
@@ -366,7 +405,7 @@
                 float highlight = smoothstep(0.6, 1.0, f);
                 color = mix(color, colorWhite, highlight * 0.8);
 
-                float banding = sin(st.y * 100.0) * 0.02;
+                float banding = sin(st.y * 100.0) * 0.015;
                 color += banding;
 
                 gl_FragColor = vec4(color, 1.0);
@@ -401,7 +440,6 @@
         window.addEventListener('resize', () => {
             const width = container.clientWidth;
             const height = container.clientHeight;
-
             renderer.setSize(width, height);
             uniforms.u_resolution.value.set(width, height);
         });
