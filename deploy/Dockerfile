@@ -15,6 +15,9 @@ FROM node:18-alpine
 # 安装 nginx
 RUN apk add --no-cache nginx
 
+# 删除默认配置
+RUN rm -rf /etc/nginx/conf.d/*
+
 # 创建数据目录
 RUN mkdir -p /data
 
