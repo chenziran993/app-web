@@ -1,6 +1,7 @@
-# 忽略 Docker 相关文件
-deploy/
+# 忽略不需要的文件
 .dockerignore
-Dockerfile
-*.conf
 *.md
+.git
+.gitignore
+node_modules
+design-*.html
