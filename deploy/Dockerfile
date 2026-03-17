@@ -37,6 +37,9 @@ COPY deploy/nginx.conf /etc/nginx/nginx.conf
 EXPOSE 80
 
 # 启动脚本
-RUN printf '#!/bin/sh\nnode /app/server.js &\nnginx -g "daemon off;"' > /start.sh && chmod +x /start.sh
+RUN printf '#!/bin/sh\n\
+node /app/server.js > /tmp/node.log 2>&1 &\n\
+sleep 2\n\
+nginx -g "daemon off;"' > /start.sh && chmod +x /start.sh
 
 CMD ["/start.sh"]
