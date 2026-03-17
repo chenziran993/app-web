@@ -48,11 +48,14 @@ const XUNDAO = (function() {
         getProducts: async function() {
             try {
                 const res = await fetch(CONFIG.API_BASE + '/products');
+                if (!res.ok) {
+                    throw new Error('Server error: ' + res.status);
+                }
                 return await res.json();
             } catch (e) {
                 console.error('Error fetching products:', e);
-                const products = getItem(CONFIG.STORAGE_KEYS.PRODUCTS);
-                return products || [];
+                alert('无法连接到服务器，请确保服务器正在运行');
+                return [];
             }
         },
 
@@ -67,35 +70,28 @@ const XUNDAO = (function() {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(product)
                 });
+                if (!res.ok) {
+                    throw new Error('Server error: ' + res.status);
+                }
                 return await res.json();
             } catch (e) {
                 console.error('Error adding product:', e);
-                const newProduct = {
-                    id: generateId(),
-                    title: product.title || '',
-                    description: product.description || '',
-                    image: product.image || '',
-                    link: product.link || '',
-                    likes: 0,
-                    createdAt: new Date().toISOString()
-                };
-                const products = getItem(CONFIG.STORAGE_KEYS.PRODUCTS) || [];
-                products.unshift(newProduct);
-                setItem(CONFIG.STORAGE_KEYS.PRODUCTS, products);
-                return newProduct;
+                alert('无法连接到服务器，请确保服务器正在运行');
+                return null;
             }
         },
 
         deleteProduct: async function(id) {
             try {
-                await fetch(CONFIG.API_BASE + '/products/' + id, {
+                const res = await fetch(CONFIG.API_BASE + '/products/' + id, {
                     method: 'DELETE'
                 });
+                if (!res.ok) {
+                    throw new Error('Server error: ' + res.status);
+                }
             } catch (e) {
                 console.error('Error deleting product:', e);
-                const products = getItem(CONFIG.STORAGE_KEYS.PRODUCTS) || [];
-                const filtered = products.filter(p => p.id !== id);
-                setItem(CONFIG.STORAGE_KEYS.PRODUCTS, filtered);
+                alert('无法连接到服务器，请确保服务器正在运行');
             }
         },
 
@@ -122,10 +118,14 @@ const XUNDAO = (function() {
         getLikes: async function() {
             try {
                 const res = await fetch(CONFIG.API_BASE + '/likes');
+                if (!res.ok) {
+                    throw new Error('Server error: ' + res.status);
+                }
                 return await res.json();
             } catch (e) {
                 console.error('Error fetching likes:', e);
-                return getItem(CONFIG.STORAGE_KEYS.LIKES) || {};
+                alert('无法连接到服务器，请确保服务器正在运行');
+                return {};
             }
         },
 
@@ -145,8 +145,12 @@ const XUNDAO = (function() {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ productId, action: 'like' })
                 });
+                if (!res.ok) {
+                    throw new Error('Server error: ' + res.status);
+                }
                 const data = await res.json();
 
+                // 记录已点赞的产品（本地，用于防止重复点赞）
                 const likedProducts = this.getLikedProducts();
                 if (!likedProducts.includes(productId)) {
                     likedProducts.push(productId);
@@ -156,10 +160,8 @@ const XUNDAO = (function() {
                 return { success: true, likes: data.likes };
             } catch (e) {
                 console.error('Error liking product:', e);
-                const allLikes = this.getLikes();
-                allLikes[productId] = (allLikes[productId] || 0) + 1;
-                this.saveLikes(allLikes);
-                return { success: true, likes: allLikes[productId] };
+                alert('无法连接到服务器，请确保服务器正在运行');
+                return { success: false, likes: 0 };
             }
         },
 

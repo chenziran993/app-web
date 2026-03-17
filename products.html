@@ -640,8 +640,9 @@
                 return div.innerHTML;
             }
 
-            function renderProducts() {
-                const products = XUNDAO.products.getProducts();
+            async function renderProducts() {
+                const products = await XUNDAO.products.getProducts();
+                const allLikes = await XUNDAO.likes.getLikes();
 
                 if (products.length === 0) {
                     productGrid.innerHTML = `
@@ -655,7 +656,7 @@
                 }
 
                 productGrid.innerHTML = products.map(product => {
-                    const likes = XUNDAO.likes.getProductLikes(product.id);
+                    const likes = allLikes[product.id] || 0;
                     const hasLiked = XUNDAO.likes.hasLiked(product.id);
                     const safeTitle = escapeHtml(product.title);
                     const safeDesc = escapeHtml(product.description);
@@ -694,7 +695,7 @@
                 });
             }
 
-            function handleLike(e) {
+            async function handleLike(e) {
                 const btn = e.currentTarget;
                 const productId = btn.dataset.id;
 
@@ -702,7 +703,7 @@
                     return;
                 }
 
-                const result = XUNDAO.likes.likeProduct(productId);
+                const result = await XUNDAO.likes.likeProduct(productId);
 
                 if (result.success) {
                     btn.classList.add('liked');

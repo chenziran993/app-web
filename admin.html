@@ -944,7 +944,7 @@
         });
 
         // 添加产品
-        function handleAddProduct(e) {
+        async function handleAddProduct(e) {
             e.preventDefault();
 
             const title = document.getElementById('productTitle').value;
@@ -952,7 +952,11 @@
             const image = document.getElementById('productImageBase64').value;
             const link = document.getElementById('productLink').value;
 
-            XUNDAO.products.addProduct({ title, description, image, link });
+            if (!confirm('确定要发布此藏品吗？')) {
+                return;
+            }
+
+            await XUNDAO.products.addProduct({ title, description, image, link });
 
             e.target.reset();
             document.getElementById('fileName').textContent = '未选择文件';
@@ -967,8 +971,8 @@
         document.getElementById('productForm').addEventListener('submit', handleAddProduct);
 
         // 渲染产品列表
-        function renderProductList() {
-            const products = XUNDAO.products.getProducts();
+        async function renderProductList() {
+            const products = await XUNDAO.products.getProducts();
             const container = document.getElementById('productList');
 
             if (products.length === 0) {
@@ -987,9 +991,9 @@
             `).join('');
         }
 
-        function handleDelete(id) {
+        async function handleDelete(id) {
             if (confirm('确定要删除此藏品吗？')) {
-                XUNDAO.products.deleteProduct(id);
+                await XUNDAO.products.deleteProduct(id);
                 renderProductList();
             }
         }
