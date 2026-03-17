@@ -20,7 +20,7 @@ RUN mkdir -p /data
 
 # 复制后端文件
 COPY --from=builder /app /app
-COPY server/server.js ./
+COPY server/server.js /app/
 
 # 复制网站文件
 COPY index.html products.html admin.html /usr/share/nginx/html/
