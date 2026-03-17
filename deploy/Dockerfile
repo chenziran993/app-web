@@ -1,10 +1,28 @@
-# 使用轻量级 Nginx 镜像
-FROM nginx:alpine
+# 基础镜像
+FROM node:18-alpine AS builder
 
-# 删除默认配置
-RUN rm /etc/nginx/conf.d/default.conf
+# 创建数据目录
+RUN mkdir -p /data
 
-# 复制网站文件到容器
+# ============ 第一阶段：构建后端 ============
+WORKDIR /app
+COPY server/package.json ./
+RUN npm install --production
+
+# ============ 第二阶段：运行 ============
+FROM node:18-alpine
+
+# 安装 nginx
+RUN apk add --no-cache nginx
+
+# 创建数据目录
+RUN mkdir -p /data
+
+# 复制后端文件
+COPY --from=builder /app /app
+COPY server/server.js ./
+
+# 复制网站文件
 COPY index.html products.html admin.html /usr/share/nginx/html/
 COPY css /usr/share/nginx/html/css
 COPY js /usr/share/nginx/html/js
@@ -15,5 +33,7 @@ COPY deploy/nginx.conf /etc/nginx/conf.d/
 # 暴露端口
 EXPOSE 80
 
-# 启动 Nginx（前台运行）
-CMD ["nginx", "-g", "daemon off;"]
+# 启动脚本
+RUN echo '#!/bin/sh\nnode /app/server.js &\nnginx -g "daemon off;"' > /start.sh && chmod +x /start.sh
+
+CMD ["/start.sh"]
