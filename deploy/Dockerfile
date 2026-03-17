@@ -15,8 +15,8 @@ FROM node:18-alpine
 # 安装 nginx
 RUN apk add --no-cache nginx
 
-# 删除默认配置
-RUN rm -rf /etc/nginx/conf.d/*
+# 删除默认配置并复制 Nginx 配置（替换主配置）
+COPY deploy/nginx.conf /etc/nginx/nginx.conf
 
 # 创建数据目录
 RUN mkdir -p /data
@@ -30,8 +30,7 @@ COPY index.html products.html admin.html /usr/share/nginx/html/
 COPY css /usr/share/nginx/html/css
 COPY js /usr/share/nginx/html/js
 
-# 复制 Nginx 配置
-COPY deploy/nginx.conf /etc/nginx/conf.d/
+# 复制 Nginx 配置（替换主配置）
 
 # 暴露端口
 EXPOSE 80
