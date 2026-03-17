@@ -7,7 +7,7 @@ RUN mkdir -p /data
 # ============ 第一阶段：构建后端 ============
 WORKDIR /app
 COPY server/package.json ./
-RUN npm install --production
+RUN npm install --production --registry=https://registry.npmmirror.com
 
 # ============ 第二阶段：运行 ============
 FROM node:18-alpine
@@ -34,6 +34,6 @@ COPY deploy/nginx.conf /etc/nginx/conf.d/
 EXPOSE 80
 
 # 启动脚本
-RUN echo '#!/bin/sh\nnode /app/server.js &\nnginx -g "daemon off;"' > /start.sh && chmod +x /start.sh
+RUN printf '#!/bin/sh\nnode /app/server.js &\nnginx -g "daemon off;"' > /start.sh && chmod +x /start.sh
 
 CMD ["/start.sh"]
