@@ -8,6 +8,7 @@ const XUNDAO = (function() {
 
     // ==================== 配置常量 ====================
     const CONFIG = {
+        API_BASE: '/api',
         STORAGE_KEYS: {
             PRODUCTS: 'xundao_products',
             LIKES: 'xundao_likes',
@@ -44,49 +45,72 @@ const XUNDAO = (function() {
 
     // ==================== 产品管理模块 ====================
     const products = {
-        getProducts: function() {
-            const products = getItem(CONFIG.STORAGE_KEYS.PRODUCTS);
-            return products || [];
+        getProducts: async function() {
+            try {
+                const res = await fetch(CONFIG.API_BASE + '/products');
+                return await res.json();
+            } catch (e) {
+                console.error('Error fetching products:', e);
+                const products = getItem(CONFIG.STORAGE_KEYS.PRODUCTS);
+                return products || [];
+            }
         },
 
         saveProducts: function(products) {
             return setItem(CONFIG.STORAGE_KEYS.PRODUCTS, products);
         },
 
-        addProduct: function(product) {
-            const products = this.getProducts();
-            const newProduct = {
-                id: generateId(),
-                title: product.title || '',
-                description: product.description || '',
-                image: product.image || '',
-                link: product.link || '',
-                likes: 0,
-                createdAt: new Date().toISOString()
-            };
-            products.unshift(newProduct);
-            this.saveProducts(products);
-            return newProduct;
+        addProduct: async function(product) {
+            try {
+                const res = await fetch(CONFIG.API_BASE + '/products', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(product)
+                });
+                return await res.json();
+            } catch (e) {
+                console.error('Error adding product:', e);
+                const newProduct = {
+                    id: generateId(),
+                    title: product.title || '',
+                    description: product.description || '',
+                    image: product.image || '',
+                    link: product.link || '',
+                    likes: 0,
+                    createdAt: new Date().toISOString()
+                };
+                const products = getItem(CONFIG.STORAGE_KEYS.PRODUCTS) || [];
+                products.unshift(newProduct);
+                setItem(CONFIG.STORAGE_KEYS.PRODUCTS, products);
+                return newProduct;
+            }
         },
 
-        deleteProduct: function(id) {
-            const products = this.getProducts();
-            const filtered = products.filter(p => p.id !== id);
-            this.saveProducts(filtered);
-            return filtered;
+        deleteProduct: async function(id) {
+            try {
+                await fetch(CONFIG.API_BASE + '/products/' + id, {
+                    method: 'DELETE'
+                });
+            } catch (e) {
+                console.error('Error deleting product:', e);
+                const products = getItem(CONFIG.STORAGE_KEYS.PRODUCTS) || [];
+                const filtered = products.filter(p => p.id !== id);
+                setItem(CONFIG.STORAGE_KEYS.PRODUCTS, filtered);
+            }
         },
 
         getProduct: function(id) {
-            const products = this.getProducts();
-            return products.find(p => p.id === id) || null;
+            const products = getItem(CONFIG.STORAGE_KEYS.PRODUCTS);
+            return products ? products.find(p => p.id === id) || null : null;
         },
 
         updateProduct: function(id, updates) {
-            const products = this.getProducts();
+            const products = getItem(CONFIG.STORAGE_KEYS.PRODUCTS);
+            if (!products) return null;
             const index = products.findIndex(p => p.id === id);
             if (index !== -1) {
                 products[index] = { ...products[index], ...updates };
-                this.saveProducts(products);
+                setItem(CONFIG.STORAGE_KEYS.PRODUCTS, products);
                 return products[index];
             }
             return null;
@@ -95,9 +119,14 @@ const XUNDAO = (function() {
 
     // ==================== 点赞功能模块 ====================
     const likes = {
-        getLikes: function() {
-            const likes = getItem(CONFIG.STORAGE_KEYS.LIKES);
-            return likes || {};
+        getLikes: async function() {
+            try {
+                const res = await fetch(CONFIG.API_BASE + '/likes');
+                return await res.json();
+            } catch (e) {
+                console.error('Error fetching likes:', e);
+                return getItem(CONFIG.STORAGE_KEYS.LIKES) || {};
+            }
         },
 
         saveLikes: function(likes) {
@@ -109,30 +138,29 @@ const XUNDAO = (function() {
             return allLikes[productId] || 0;
         },
 
-        likeProduct: function(productId) {
-            const allLikes = this.getLikes();
-            const likedProducts = this.getLikedProducts();
+        likeProduct: async function(productId) {
+            try {
+                const res = await fetch(CONFIG.API_BASE + '/likes', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ productId, action: 'like' })
+                });
+                const data = await res.json();
 
-            // 检查是否已点赞
-            if (likedProducts.includes(productId)) {
-                return { success: false, message: 'Already liked' };
+                const likedProducts = this.getLikedProducts();
+                if (!likedProducts.includes(productId)) {
+                    likedProducts.push(productId);
+                    localStorage.setItem('xundao_liked_products', JSON.stringify(likedProducts));
+                }
+
+                return { success: true, likes: data.likes };
+            } catch (e) {
+                console.error('Error liking product:', e);
+                const allLikes = this.getLikes();
+                allLikes[productId] = (allLikes[productId] || 0) + 1;
+                this.saveLikes(allLikes);
+                return { success: true, likes: allLikes[productId] };
             }
-
-            // 增加点赞数
-            allLikes[productId] = (allLikes[productId] || 0) + 1;
-            this.saveLikes(allLikes);
-
-            // 记录已点赞产品
-            likedProducts.push(productId);
-            localStorage.setItem('xundao_liked_products', JSON.stringify(likedProducts));
-
-            // 更新产品列表中的点赞数
-            const product = products.getProduct(productId);
-            if (product) {
-                products.updateProduct(productId, { likes: allLikes[productId] });
-            }
-
-            return { success: true, likes: allLikes[productId] };
         },
 
         getLikedProducts: function() {
@@ -223,38 +251,10 @@ const XUNDAO = (function() {
         }
     };
 
-    // ==================== 初始化示例数据 ====================
+    // ==================== 初始化（不需要了，后端处理） ====================
     function initSampleData() {
-        const existingProducts = products.getProducts();
-
-        // 如果已有数据，则不初始化
-        if (existingProducts.length > 0) {
-            return false;
-        }
-
-        // 创建示例产品
-        const sampleProducts = [
-            {
-                title: '寻道日志',
-                description: '记录修行路上的点点滴滴',
-                image: '',
-                link: 'https://example.com/blog',
-                likes: 0
-            },
-            {
-                title: '作品集',
-                description: '历年创作作品展示',
-                image: '',
-                link: 'https://example.com/portfolio',
-                likes: 0
-            }
-        ];
-
-        sampleProducts.forEach(function(product) {
-            products.addProduct(product);
-        });
-
-        return true;
+        // 后端会初始化空数组，不需要前端初始化示例数据
+        return false;
     }
 
     // ==================== 公开 API ====================
