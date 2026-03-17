@@ -12,6 +12,9 @@ RUN npm install --production --registry=https://registry.npmmirror.com
 # ============ 第二阶段：运行 ============
 FROM node:18-alpine
 
+# 切换到阿里云镜像源
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
+
 # 安装 nginx
 RUN apk add --no-cache nginx
 
