@@ -18,9 +18,6 @@ RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
 # 安装 nginx
 RUN apk add --no-cache nginx
 
-# 删除默认配置并复制 Nginx 配置（替换主配置）
-COPY deploy/nginx.conf /etc/nginx/nginx.conf
-
 # 创建数据目录
 RUN mkdir -p /data
 
@@ -34,6 +31,7 @@ COPY css /usr/share/nginx/html/css
 COPY js /usr/share/nginx/html/js
 
 # 复制 Nginx 配置（替换主配置）
+COPY deploy/nginx.conf /etc/nginx/nginx.conf
 
 # 暴露端口
 EXPOSE 80
