@@ -14,7 +14,7 @@
             --paper: #F4F2EC;
             --ink: #2A2927;
             --ink-light: #5A5855;
-            --ink-faint: rgba(42, 41, 39, 0.15);
+            --margin-height: 18vh;
         }
 
         * {
@@ -37,7 +37,6 @@
             color: var(--paper);
         }
 
-        /* 主容器 - 全屏布局 */
         .viewport {
             position: relative;
             width: 100vw;
@@ -46,131 +45,127 @@
             flex-direction: column;
         }
 
-        /* 留白区域 */
         .margin-band {
-            flex: 0 0 18vh;
-            position: relative;
+            height: var(--margin-height);
+            width: 100%;
+            background-color: var(--paper);
             z-index: 10;
+            position: relative;
         }
 
-        /* 画布区域 - 承载 WebGL */
         .canvas-area {
-            flex: 1;
+            flex-grow: 1;
+            width: 100%;
             position: relative;
             overflow: hidden;
         }
 
         #webgl-container {
             position: absolute;
-            inset: 0;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             z-index: 1;
             pointer-events: none;
         }
 
-        /* 内容层 */
         .content-layer {
             position: absolute;
-            inset: 0;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             z-index: 20;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            pointer-events: none;
         }
 
         .interactive {
             pointer-events: auto;
         }
 
-        /* 居中内容容器 */
-        .center-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            animation: fadeIn 1.5s ease-out;
-        }
-
+        /* 动画 */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* 主标题 */
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* 主标题 - 竖排文字 */
         .primary-title {
-            writing-mode: horizontal-tb;
-            text-orientation: mixed;
-            font-size: clamp(2rem, 5vw, 3.5rem);
+            position: absolute;
+            top: calc(var(--margin-height) - 2vh);
+            right: 12vw;
+            writing-mode: vertical-rl;
+            text-orientation: upright;
+            font-size: 2.8rem;
             font-weight: 300;
-            letter-spacing: 0.5em;
+            letter-spacing: 0.8em;
+            line-height: 2;
             color: var(--ink);
-            margin-bottom: 2rem;
-            text-shadow: 0 2px 20px rgba(244, 242, 236, 0.8);
+            text-shadow: 0 0 20px rgba(244, 242, 236, 0.5);
+            animation: fadeIn 1.5s ease-out;
         }
 
-        .title-line {
-            display: block;
-            animation: slideUp 1s ease-out backwards;
-        }
-
-        .title-line:nth-child(2) {
-            animation-delay: 0.2s;
-        }
-
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
+        .primary-title span {
+            display: inline-block;
+            margin-bottom: 0.2em;
         }
 
         /* 副标题块 */
         .secondary-block {
+            position: absolute;
+            bottom: calc(var(--margin-height) + 15vh);
+            right: 18vw;
             font-family: 'Cormorant Garamond', serif;
-            margin-bottom: 3rem;
-            animation: fadeIn 1.5s ease-out 0.4s backwards;
+            text-align: left;
+            animation: slideIn 1.5s ease-out 0.3s backwards;
         }
 
         .eng-title {
-            font-size: clamp(1rem, 2vw, 1.4rem);
+            font-size: 1.4rem;
             font-weight: 400;
-            letter-spacing: 0.15em;
-            margin-bottom: 1rem;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
             color: var(--ink);
         }
 
-        .author-row {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 1.5rem;
-            margin-bottom: 0.5rem;
-        }
-
         .author-name {
-            font-size: 1rem;
-            letter-spacing: 0.2em;
-        }
-
-        .separator {
-            color: var(--ink-light);
-            font-size: 0.8rem;
+            font-size: 1.2rem;
+            font-weight: 400;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.2rem;
         }
 
         .cn-name {
-            font-size: 0.95rem;
-            letter-spacing: 0.6em;
+            font-family: 'Noto Serif SC', serif;
+            font-size: 1.1rem;
+            font-weight: 400;
+            letter-spacing: 0.5em;
+            margin-bottom: 0.8rem;
         }
 
         .role {
-            font-size: 0.7rem;
-            letter-spacing: 0.3em;
+            font-family: 'Noto Serif SC', serif;
+            font-size: 0.75rem;
+            font-weight: 400;
+            letter-spacing: 0.2em;
             color: var(--ink-light);
-            margin-top: 0.8rem;
         }
 
-        /* 导航链接 */
+        /* 导航链接 - 左侧垂直排列 */
         .nav-links {
+            position: absolute;
+            top: 40vh;
+            left: 15vw;
             display: flex;
+            flex-direction: column;
             gap: 3rem;
-            animation: fadeIn 1.5s ease-out 0.6s backwards;
+            animation: slideIn 1.5s ease-out 0.5s backwards;
         }
 
         .nav-item {
@@ -178,90 +173,106 @@
             color: var(--ink);
             display: flex;
             flex-direction: column;
-            align-items: center;
-            transition: all 0.4s cubic-bezier(0.19, 1, 0.22, 1);
-            position: relative;
-            padding: 0.5rem 0;
+            align-items: flex-start;
+            transition: opacity 0.6s ease;
         }
 
-        .nav-item::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            width: 0;
-            height: 1px;
-            background: var(--ink);
-            transition: all 0.4s cubic-bezier(0.19, 1, 0.22, 1);
-            transform: translateX(-50%);
+        .nav-links:hover .nav-item {
+            opacity: 0.3;
         }
 
-        .nav-item:hover::after {
-            width: 100%;
-        }
-
-        .nav-item:hover {
-            color: var(--ink);
+        .nav-links .nav-item:hover {
+            opacity: 1;
         }
 
         .nav-cn {
-            font-size: 0.95rem;
-            letter-spacing: 0.4em;
-            margin-bottom: 0.3rem;
+            font-size: 1.2rem;
+            letter-spacing: 0.3em;
+            margin-bottom: 0.2rem;
+            position: relative;
+        }
+
+        .nav-cn::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0%;
+            height: 1px;
+            background-color: var(--ink);
+            transition: width 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+
+        .nav-item:hover .nav-cn::after {
+            width: 80%;
         }
 
         .nav-en {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 0.7rem;
+            font-size: 0.8rem;
             font-style: italic;
-            letter-spacing: 0.15em;
+            letter-spacing: 0.1em;
             color: var(--ink-light);
+        }
+
+        /* 浮动诗句 */
+        .floating-poem {
+            position: absolute;
+            top: 25vh;
+            right: 40vw;
+            writing-mode: vertical-rl;
+            font-size: 0.9rem;
+            color: var(--ink-light);
+            letter-spacing: 0.5em;
+            line-height: 2.5;
+            opacity: 0.7;
+            mix-blend-mode: multiply;
+            animation: fadeIn 2s ease-out 0.8s backwards;
         }
 
         /* 底部标记 */
         .footer-mark {
             position: absolute;
-            bottom: 3vh;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 0.7rem;
-            letter-spacing: 0.25em;
+            bottom: calc(var(--margin-height) / 2);
+            left: 8vw;
+            font-size: 0.8rem;
+            letter-spacing: 0.2em;
             color: var(--ink-light);
-            animation: fadeIn 1.5s ease-out 0.8s backwards;
+            transform: translateY(50%);
+            animation: fadeIn 1.5s ease-out 1s backwards;
         }
 
         /* 响应式 */
+        @media (max-width: 1024px) {
+            .primary-title { right: 8vw; font-size: 2.2rem; }
+            .secondary-block { right: 10vw; bottom: calc(var(--margin-height) + 10vh); }
+            .nav-links { left: 10vw; }
+            .floating-poem { display: none; }
+        }
+
         @media (max-width: 768px) {
+            .margin-band {
+                height: 12vh;
+            }
+
             .nav-links {
+                top: 30vh;
+                left: 8vw;
                 gap: 2rem;
             }
 
-            .nav-cn {
-                font-size: 0.85rem;
-            }
-
             .primary-title {
-                letter-spacing: 0.3em;
+                right: 5vw;
+                font-size: 1.8rem;
             }
 
-            .margin-band {
-                flex: 0 0 12vh;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .nav-links {
-                flex-direction: column;
-                gap: 1.5rem;
+            .secondary-block {
+                right: 8vw;
+                bottom: calc(12vh + 8vh);
             }
 
-            .author-row {
-                flex-direction: column;
-                gap: 0.3rem;
-            }
-
-            .separator {
-                display: none;
+            .nav-cn {
+                font-size: 1rem;
             }
         }
     </style>
@@ -277,39 +288,38 @@
         <div class="margin-band"></div>
 
         <div class="content-layer">
-            <div class="center-container">
-                <h1 class="primary-title">
-                    <span class="title-line">天地蜉蝣</span>
-                    <span class="title-line">沧海一粟</span>
-                </h1>
-
-                <div class="secondary-block interactive">
-                    <div class="eng-title">Chronicles of Solitude</div>
-                    <div class="author-row">
-                        <span class="author-name">Gu Yun</span>
-                        <span class="separator">·</span>
-                        <span class="cn-name">孤云录</span>
-                    </div>
-                    <div class="role">数字修真者</div>
-                </div>
-
-                <nav class="nav-links interactive">
-                    <a href="index.html" class="nav-item">
-                        <span class="nav-cn">首页</span>
-                        <span class="nav-en">Home</span>
-                    </a>
-                    <a href="products.html" class="nav-item">
-                        <span class="nav-cn">炼器坊</span>
-                        <span class="nav-en">Artifacts</span>
-                    </a>
-                    <a href="admin.html" class="nav-item">
-                        <span class="nav-cn">洞府</span>
-                        <span class="nav-en">Dwelling</span>
-                    </a>
-                </nav>
+            <div class="primary-title">
+                天地蜉蝣<br>沧海一粟
             </div>
 
-            <div class="footer-mark">
+            <div class="secondary-block interactive">
+                <div class="eng-title">Chronicles of Solitude</div>
+                <div class="author-name">Gu Yun</div>
+                <div class="cn-name">孤 云 · 录</div>
+                <div class="role">数字修真者 撰</div>
+            </div>
+
+            <nav class="nav-links interactive">
+                <a href="index.html" class="nav-item">
+                    <span class="nav-cn">首页</span>
+                    <span class="nav-en">Home</span>
+                </a>
+                <a href="products.html" class="nav-item">
+                    <span class="nav-cn">炼器坊</span>
+                    <span class="nav-en">Artifacts</span>
+                </a>
+                <a href="admin.html" class="nav-item">
+                    <span class="nav-cn">洞府</span>
+                    <span class="nav-en">Dwelling</span>
+                </a>
+            </nav>
+
+            <div class="floating-poem">
+                心若冰清，天塌不惊。<br>
+                万变犹定，神怡气静。
+            </div>
+
+            <div class="footer-mark interactive">
                 甲辰年 · 寻道
             </div>
         </div>
@@ -320,7 +330,7 @@
         const container = document.getElementById('webgl-container');
         const scene = new THREE.Scene();
         const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
-        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: false });
 
         renderer.setSize(container.clientWidth, container.clientHeight);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -379,7 +389,6 @@
             void main() {
                 vec2 st = gl_FragCoord.xy / u_resolution.xy;
                 st.x *= u_resolution.x / u_resolution.y;
-
                 float time = u_time * 0.05;
 
                 vec2 q = vec2(0.);

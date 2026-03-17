@@ -9,10 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,400&family=Noto+Serif+SC:wght@300;400;500&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="css/style.css">
-
     <style>
-        /* Page-specific styles for products page */
         :root {
             --paper: #F4F2EC;
             --ink: #2A2927;
@@ -20,6 +17,7 @@
             --slate: #8A8B86;
             --white: #EBEBE6;
             --mist: #A3ADAA;
+            --margin-height: 18vh;
         }
 
         * {
@@ -28,10 +26,13 @@
             padding: 0;
         }
 
-        body {
+        body, html {
+            width: 100%;
+            height: 100%;
             background-color: var(--paper);
             color: var(--ink);
             font-family: 'Noto Serif SC', serif;
+            overflow: hidden;
         }
 
         ::selection {
@@ -39,77 +40,219 @@
             color: var(--paper);
         }
 
-        /* 主容器 */
         .viewport {
             position: relative;
             width: 100vw;
-            min-height: 100vh;
+            height: 100vh;
             display: flex;
             flex-direction: column;
         }
 
         .margin-band {
-            flex: 0 0 18vh;
-            position: relative;
+            height: var(--margin-height);
+            width: 100%;
+            background-color: var(--paper);
             z-index: 10;
+            position: relative;
         }
 
         .canvas-area {
-            flex: 1;
+            flex-grow: 1;
+            width: 100%;
             position: relative;
             overflow: hidden;
         }
 
         #webgl-container {
             position: absolute;
-            inset: 0;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             z-index: 1;
             pointer-events: none;
         }
 
         .content-layer {
             position: absolute;
-            inset: 0;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             z-index: 20;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 0 2rem;
+            pointer-events: none;
         }
 
         .interactive {
             pointer-events: auto;
         }
 
-        /* 页面标题 - 居中 */
-        .page-title {
-            font-size: clamp(1.8rem, 4vw, 2.5rem);
-            font-weight: 300;
-            letter-spacing: 0.6em;
-            margin: 1rem 0 2rem;
-            animation: fadeIn 1s ease-out;
-        }
-
+        /* 动画 */
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+            from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* 产品区域 - 居中网格 */
-        .products-section {
-            flex: 1;
-            width: 100%;
-            max-width: 1000px;
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* 主标题 - 竖排文字 */
+        .page-title {
+            position: absolute;
+            top: calc(var(--margin-height) - 2vh);
+            right: 12vw;
+            writing-mode: vertical-rl;
+            text-orientation: upright;
+            font-size: 2.8rem;
+            font-weight: 300;
+            letter-spacing: 0.8em;
+            line-height: 2;
+            color: var(--ink);
+            animation: fadeIn 1.5s ease-out;
+        }
+
+        /* 副标题块 */
+        .secondary-block {
+            position: absolute;
+            bottom: calc(var(--margin-height) + 15vh);
+            right: 18vw;
+            font-family: 'Cormorant Garamond', serif;
+            text-align: left;
+            animation: slideIn 1.5s ease-out 0.3s backwards;
+        }
+
+        .eng-title {
+            font-size: 1.4rem;
+            font-weight: 400;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+            color: var(--ink);
+        }
+
+        .author-name {
+            font-size: 1.2rem;
+            font-weight: 400;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.2rem;
+        }
+
+        .cn-name {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 1.1rem;
+            font-weight: 400;
+            letter-spacing: 0.5em;
+            margin-bottom: 0.8rem;
+        }
+
+        .role {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 0.75rem;
+            font-weight: 400;
+            letter-spacing: 0.2em;
+            color: var(--ink-light);
+        }
+
+        /* 浮动诗句 */
+        .floating-poem {
+            position: absolute;
+            top: 25vh;
+            right: 40vw;
+            writing-mode: vertical-rl;
+            font-size: 0.9rem;
+            color: var(--ink-light);
+            letter-spacing: 0.5em;
+            line-height: 2.5;
+            opacity: 0.7;
+            mix-blend-mode: multiply;
+            animation: fadeIn 2s ease-out 0.8s backwards;
+        }
+
+        /* 导航链接 - 左侧垂直排列 */
+        .nav-links {
+            position: absolute;
+            top: 40vh;
+            left: 15vw;
+            display: flex;
+            flex-direction: column;
+            gap: 3rem;
+            animation: slideIn 1.5s ease-out 0.5s backwards;
+        }
+
+        .nav-item {
+            text-decoration: none;
+            color: var(--ink);
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            transition: opacity 0.6s ease;
+        }
+
+        .nav-links:hover .nav-item {
+            opacity: 0.3;
+        }
+
+        .nav-links .nav-item:hover {
+            opacity: 1;
+        }
+
+        .nav-cn {
+            font-size: 1.2rem;
+            letter-spacing: 0.3em;
+            margin-bottom: 0.2rem;
+            position: relative;
+        }
+
+        .nav-cn::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0%;
+            height: 1px;
+            background-color: var(--ink);
+            transition: width 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+
+        .nav-item:hover .nav-cn::after {
+            width: 80%;
+        }
+
+        .nav-en {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 0.8rem;
+            font-style: italic;
+            letter-spacing: 0.1em;
+            color: var(--ink-light);
+        }
+
+        /* 产品网格 - 在动效区域居中 */
+        .products-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 900px;
+            max-height: 60vh;
             overflow-y: auto;
             pointer-events: auto;
-            padding-bottom: 2rem;
+            padding: 2rem;
+            /* 隐藏滚动条但保持滚动功能 */
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .products-container::-webkit-scrollbar {
+            display: none;
         }
 
         .product-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
             gap: 2rem;
-            animation: fadeIn 1s ease-out 0.2s backwards;
+            animation: fadeIn 1s ease-out 0.3s backwards;
         }
 
         .product-card {
@@ -137,7 +280,7 @@
 
         .product-image {
             width: 100%;
-            height: 180px;
+            height: 150px;
             object-fit: cover;
             margin-bottom: 1rem;
             background-color: var(--mist);
@@ -156,14 +299,14 @@
         }
 
         .product-title {
-            font-size: 1.25rem;
+            font-size: 1.2rem;
             letter-spacing: 0.1em;
             margin-bottom: 0.5rem;
             color: var(--ink);
         }
 
         .product-description {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: var(--ink-light);
             line-height: 1.6;
             margin-bottom: 1rem;
@@ -186,7 +329,7 @@
             border: none;
             cursor: pointer;
             color: var(--ink-light);
-            font-family: var(--font-en);
+            font-family: 'Cormorant Garamond', serif;
             font-size: 0.9rem;
             font-style: italic;
             transition: color 0.3s ease;
@@ -214,7 +357,6 @@
             align-items: center;
             justify-content: center;
             padding: 0.5em 1.2em;
-            font-family: var(--font-cn);
             font-size: 0.85rem;
             letter-spacing: 0.15em;
             border: 1px solid var(--ink);
@@ -248,126 +390,77 @@
             opacity: 0.5;
         }
 
-        /* Responsive */
+        /* 底部标记 */
+        .footer-mark {
+            position: absolute;
+            bottom: calc(var(--margin-height) / 2);
+            left: 8vw;
+            font-size: 0.8rem;
+            letter-spacing: 0.2em;
+            color: var(--ink-light);
+            transform: translateY(50%);
+            animation: fadeIn 1.5s ease-out 1s backwards;
+        }
+
+        /* 响应式 */
         @media (max-width: 1024px) {
-            .page-title {
-                right: 8vw;
-                font-size: 2.2rem;
-            }
-
-            .products-section {
-                left: 20vw;
-                right: 5vw;
-            }
-
-            .product-grid {
-                grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-            }
+            .page-title { right: 8vw; font-size: 2.2rem; }
+            .nav-links { left: 10vw; }
+            .secondary-block { right: 10vw; bottom: calc(var(--margin-height) + 10vh); }
+            .floating-poem { display: none; }
         }
 
         @media (max-width: 768px) {
             .margin-band {
-                flex: 0 0 12vh;
+                height: 12vh;
             }
 
             .nav-links {
-                gap: 1.5rem;
+                top: 30vh;
+                left: 8vw;
+                gap: 2rem;
+            }
+
+            .page-title {
+                right: 5vw;
+                font-size: 1.8rem;
+            }
+
+            .nav-cn {
+                font-size: 1rem;
             }
 
             .product-grid {
                 grid-template-columns: 1fr;
             }
-        }
 
-        /* 导航 */
-        .nav-links {
-            display: flex;
-            gap: 2.5rem;
-            margin-top: 0.5rem;
-        }
-
-        .nav-item {
-            text-decoration: none;
-            color: var(--ink);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            transition: all 0.4s ease;
-            position: relative;
-            padding: 0.3rem 0;
-        }
-
-        .nav-item::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            width: 0;
-            height: 1px;
-            background: var(--ink);
-            transition: all 0.4s cubic-bezier(0.19, 1, 0.22, 1);
-            transform: translateX(-50%);
-        }
-
-        .nav-item:hover::after {
-            width: 100%;
-        }
-
-        .nav-cn {
-            font-size: 0.9rem;
-            letter-spacing: 0.3em;
-            margin-bottom: 0.2rem;
-        }
-
-        .nav-en {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 0.7rem;
-            font-style: italic;
-            letter-spacing: 0.1em;
-            color: var(--ink-light);
-        }
-
-        /* 底部 */
-        .footer-mark {
-            font-size: 0.7rem;
-            letter-spacing: 0.2em;
-            color: var(--ink-light);
-            padding: 1.5rem 0;
-        }
-
-        /* 空状态 */
-        .empty-state {
-            text-align: center;
-            padding: 3rem;
-            color: var(--ink-light);
-        }
-
-        .empty-icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            opacity: 0.5;
+            .products-container {
+                width: 95%;
+                max-height: 55vh;
+            }
         }
     </style>
 </head>
 <body>
     <div class="viewport">
-        <!-- Upper margin band -->
         <div class="margin-band"></div>
 
-        <!-- WebGL background -->
         <div class="canvas-area">
             <div id="webgl-container"></div>
         </div>
 
-        <!-- Lower margin band -->
         <div class="margin-band"></div>
 
-        <!-- Content layer -->
         <div class="content-layer">
-            <!-- Page title -->
-            <h1 class="page-title">炼器坊</h1>
+            <div class="page-title">炼器坊</div>
 
-            <!-- Navigation -->
+            <div class="secondary-block interactive">
+                <div class="eng-title">Artifacts</div>
+                <div class="author-name">Gu Yun</div>
+                <div class="cn-name">孤 云 · 藏</div>
+                <div class="role">天地灵宝 皆在于此</div>
+            </div>
+
             <nav class="nav-links interactive">
                 <a href="index.html" class="nav-item">
                     <span class="nav-cn">首页</span>
@@ -379,35 +472,35 @@
                 </a>
                 <a href="admin.html" class="nav-item">
                     <span class="nav-cn">洞府</span>
-                    <span class="nav-en">Admin</span>
+                    <span class="nav-en">Dwelling</span>
                 </a>
             </nav>
 
-            <!-- Products section -->
-            <section class="products-section">
+            <div class="floating-poem">
+                器物有灵，<br>
+                皆因其主。
+            </div>
+
+            <div class="products-container">
                 <div class="product-grid" id="product-grid">
                     <!-- Products will be loaded dynamically -->
                 </div>
-            </section>
+            </div>
 
-            <!-- Footer mark -->
             <div class="footer-mark interactive">
-                甲辰年 · 个人独立站
+                甲辰年 · 寻道
             </div>
         </div>
     </div>
 
-    <!-- Three.js for WebGL -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <!-- App JavaScript -->
     <script src="js/app.js"></script>
 
     <script>
-        // ==================== WebGL Ink Wash Background ====================
+        // WebGL Background
         (function() {
             const container = document.getElementById('webgl-container');
             const scene = new THREE.Scene();
-
             const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
             const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: false });
 
@@ -428,8 +521,8 @@
                 uniform vec2 u_resolution;
                 varying vec2 vUv;
 
-                // Simplex 2D noise
                 vec3 permute(vec3 x) { return mod(((x*34.0)+1.0)*x, 289.0); }
+
                 float snoise(vec2 v){
                     const vec4 C = vec4(0.211324865405187, 0.366025403784439,
                             -0.577350269189626, 0.024390243902439);
@@ -456,7 +549,6 @@
                     return 130.0 * dot(m, g);
                 }
 
-                // Fractional Brownian Motion for layered organic texture
                 float fbm(vec2 st) {
                     float value = 0.0;
                     float amplitude = 0.5;
@@ -533,24 +625,21 @@
             window.addEventListener('resize', () => {
                 const width = container.clientWidth;
                 const height = container.clientHeight;
-
                 renderer.setSize(width, height);
                 uniforms.u_resolution.value.set(width, height);
             });
         })();
 
-        // ==================== Product Display Logic ====================
+        // Product Display Logic
         (function() {
             const productGrid = document.getElementById('product-grid');
 
-            // HTML 转义函数，防止 XSS
             function escapeHtml(text) {
                 const div = document.createElement('div');
                 div.textContent = text;
                 return div.innerHTML;
             }
 
-            // Render products
             function renderProducts() {
                 const products = XUNDAO.products.getProducts();
 
@@ -600,13 +689,11 @@
                     `;
                 }).join('');
 
-                // Add event listeners to like buttons
                 document.querySelectorAll('.like-btn').forEach(btn => {
                     btn.addEventListener('click', handleLike);
                 });
             }
 
-            // Handle like button click
             function handleLike(e) {
                 const btn = e.currentTarget;
                 const productId = btn.dataset.id;
@@ -624,7 +711,6 @@
                 }
             }
 
-            // Initialize
             renderProducts();
         })();
     </script>

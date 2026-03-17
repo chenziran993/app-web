@@ -9,11 +9,105 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,400&family=Noto+Serif+SC:wght@300;400;500&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="css/style.css">
-
     <style>
-        /* Page-specific styles for admin page */
-        .page-title {
+        :root {
+            --paper: #F4F2EC;
+            --ink: #2A2927;
+            --ink-light: #5A5855;
+            --slate: #8A8B86;
+            --white: #EBEBE6;
+            --umber: #6A5C52;
+            --margin-height: 18vh;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            background-color: var(--paper);
+            color: var(--ink);
+            font-family: 'Noto Serif SC', serif;
+            overflow: hidden;
+        }
+
+        ::selection {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .viewport {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .margin-band {
+            height: var(--margin-height);
+            width: 100%;
+            background-color: var(--paper);
+            z-index: 10;
+            position: relative;
+        }
+
+        .canvas-area {
+            flex-grow: 1;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #webgl-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .content-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 20;
+            pointer-events: none;
+        }
+
+        .interactive {
+            pointer-events: auto;
+        }
+
+        /* 动画 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 主标题 - 竖排文字 */
+        .primary-title {
             position: absolute;
             top: calc(var(--margin-height) - 2vh);
             right: 12vw;
@@ -25,80 +119,249 @@
             line-height: 2;
             color: var(--ink);
             text-shadow: 0 0 20px rgba(244, 242, 236, 0.5);
+            animation: fadeIn 1.5s ease-out;
         }
 
-        .admin-container {
+        .primary-title span {
+            display: inline-block;
+            margin-bottom: 0.2em;
+        }
+
+        /* 副标题块 */
+        .secondary-block {
             position: absolute;
-            top: calc(var(--margin-height) + 8vh);
-            left: 25vw;
-            right: 8vw;
-            bottom: calc(var(--margin-height) / 2);
-            overflow-y: auto;
-            pointer-events: auto;
+            bottom: calc(var(--margin-height) + 15vh);
+            right: 18vw;
+            font-family: 'Cormorant Garamond', serif;
+            text-align: left;
+            animation: slideIn 1.5s ease-out 0.3s backwards;
         }
 
-        /* Login Form Styles */
-        .login-section {
+        .eng-title {
+            font-size: 1.4rem;
+            font-weight: 400;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+            color: var(--ink);
+        }
+
+        .author-name {
+            font-size: 1.2rem;
+            font-weight: 400;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.2rem;
+        }
+
+        .cn-name {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 1.1rem;
+            font-weight: 400;
+            letter-spacing: 0.5em;
+            margin-bottom: 0.8rem;
+        }
+
+        .role {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 0.75rem;
+            font-weight: 400;
+            letter-spacing: 0.2em;
+            color: var(--ink-light);
+        }
+
+        /* 导航链接 - 左侧垂直排列 */
+        .nav-links {
+            position: absolute;
+            top: 40vh;
+            left: 15vw;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-            min-height: 300px;
+            gap: 3rem;
+            animation: slideIn 1.5s ease-out 0.5s backwards;
+        }
+
+        .nav-item {
+            text-decoration: none;
+            color: var(--ink);
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            transition: opacity 0.6s ease;
+        }
+
+        .nav-links:hover .nav-item {
+            opacity: 0.3;
+        }
+
+        .nav-links .nav-item:hover {
+            opacity: 1;
+        }
+
+        .nav-cn {
+            font-size: 1.2rem;
+            letter-spacing: 0.3em;
+            margin-bottom: 0.2rem;
+            position: relative;
+        }
+
+        .nav-cn::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0%;
+            height: 1px;
+            background-color: var(--ink);
+            transition: width 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+
+        .nav-item:hover .nav-cn::after {
+            width: 80%;
+        }
+
+        .nav-en {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 0.8rem;
+            font-style: italic;
+            letter-spacing: 0.1em;
+            color: var(--ink-light);
+        }
+
+        /* 底部标记 */
+        .footer-mark {
+            position: absolute;
+            bottom: calc(var(--margin-height) / 2);
+            left: 8vw;
+            font-size: 0.8rem;
+            letter-spacing: 0.2em;
+            color: var(--ink-light);
+            transform: translateY(50%);
+            animation: fadeIn 1.5s ease-out 1s backwards;
+        }
+
+        /* 管理容器 - 在画布区域居中 */
+        .admin-container {
+            position: relative;
+            z-index: 30;
+            width: 90%;
+            max-width: 500px;
+            pointer-events: auto;
+            animation: fadeIn 1.5s ease-out 0.4s backwards;
+        }
+
+        /* 登录表单 */
+        .login-section {
+            background: rgba(244, 242, 236, 0.95);
+            padding: 3rem 2rem;
+            border: 1px solid var(--slate);
         }
 
         .login-form {
             width: 100%;
-            max-width: 400px;
-            padding: 2rem;
         }
 
         .login-form .form-group {
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
         }
 
         .login-form .form-input {
+            width: 100%;
+            padding: 1rem;
+            font-size: 1rem;
+            letter-spacing: 0.2em;
             text-align: center;
-            font-size: 1.2rem;
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid var(--slate);
+            color: var(--ink);
+            font-family: inherit;
+            transition: border-color 0.3s ease;
+        }
+
+        .login-form .form-input:focus {
+            outline: none;
+            border-bottom-color: var(--ink);
+        }
+
+        .login-form .form-input::placeholder {
+            color: var(--slate);
+            font-style: italic;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.8rem 2rem;
+            font-family: inherit;
+            font-size: 0.9rem;
             letter-spacing: 0.3em;
-            padding: 1em;
+            border: 1px solid var(--ink);
+            background: transparent;
+            color: var(--ink);
+            cursor: pointer;
+            transition: all 0.4s ease;
+            width: 100%;
+        }
+
+        .btn:hover {
+            background: var(--ink);
+            color: var(--paper);
         }
 
         .login-error {
             color: var(--umber);
-            font-size: 0.875rem;
-            letter-spacing: 0.1em;
+            font-size: 0.85rem;
             margin-top: 1rem;
             text-align: center;
             opacity: 0;
-            transition: opacity var(--transition-medium);
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            height: 1.5rem;
         }
 
         .login-error.visible {
             opacity: 1;
+            transform: translateY(0);
         }
 
-        /* Admin Panel Styles */
+        /* 管理面板 */
         .admin-section {
             display: none;
+            animation: fadeIn 0.5s ease-out;
         }
 
+        .admin-section.active {
+            display: block;
+        }
+
+        /* 标签页 */
         .admin-tabs {
             display: flex;
             gap: 2rem;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
             border-bottom: 1px solid var(--slate);
-            padding-bottom: 1rem;
+            padding-bottom: 0.8rem;
         }
 
         .admin-tab {
-            font-size: 1.1rem;
-            letter-spacing: 0.2em;
+            font-size: 0.95rem;
+            letter-spacing: 0.25em;
             color: var(--ink-light);
             cursor: pointer;
-            padding-bottom: 0.5rem;
-            border-bottom: 2px solid transparent;
-            transition: all var(--transition-medium);
+            padding: 0.5rem 0;
+            position: relative;
+            transition: color 0.3s ease;
+        }
+
+        .admin-tab::after {
+            content: '';
+            position: absolute;
+            bottom: -0.8rem;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--ink);
+            transition: width 0.3s ease;
         }
 
         .admin-tab:hover {
@@ -107,151 +370,154 @@
 
         .admin-tab.active {
             color: var(--ink);
-            border-bottom-color: var(--ink);
         }
 
+        .admin-tab.active::after {
+            width: 100%;
+        }
+
+        /* 面板 */
         .admin-panel {
             display: none;
+            animation: slideUp 0.4s ease-out;
         }
 
         .admin-panel.active {
             display: block;
         }
 
-        /* Product Form */
-        .product-form {
-            max-width: 600px;
-            padding: 2rem;
-            background-color: var(--white);
-            border: 1px solid var(--slate);
+        /* 表单 */
+        .form-group {
+            margin-bottom: 1.2rem;
         }
 
-        .product-form .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .image-upload-area {
-            border: 2px dashed var(--slate);
-            padding: 2rem;
-            text-align: center;
-            cursor: pointer;
-            transition: all var(--transition-medium);
-            background-color: var(--paper);
-        }
-
-        .image-upload-area:hover {
-            border-color: var(--ink);
-            background-color: var(--white);
-        }
-
-        .image-upload-area.has-image {
-            padding: 0;
-            border-style: solid;
-        }
-
-        .image-upload-area .upload-placeholder {
-            color: var(--ink-light);
-            font-size: 0.9rem;
-            letter-spacing: 0.1em;
-        }
-
-        .image-upload-area .upload-placeholder span {
+        .form-label {
             display: block;
-            font-size: 2rem;
+            font-size: 0.85rem;
+            letter-spacing: 0.15em;
+            color: var(--ink-light);
             margin-bottom: 0.5rem;
         }
 
-        .image-upload-area img {
+        .form-input,
+        .form-textarea {
             width: 100%;
-            max-height: 200px;
-            object-fit: contain;
+            padding: 0.8rem 1rem;
+            font-family: inherit;
+            font-size: 0.95rem;
+            background: rgba(244, 242, 236, 0.9);
+            border: 1px solid var(--slate);
+            color: var(--ink);
+            transition: border-color 0.3s ease;
         }
 
-        .image-upload-area .remove-image {
-            position: absolute;
-            top: 0.5rem;
-            right: 0.5rem;
-            background: var(--ink);
+        .form-input:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--ink);
+        }
+
+        .form-input::placeholder,
+        .form-textarea::placeholder {
+            color: var(--slate);
+            font-style: italic;
+        }
+
+        .form-textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink-light);
+            border-color: var(--slate);
+        }
+
+        .btn-secondary:hover {
+            background: var(--slate);
             color: var(--paper);
-            border: none;
-            width: 24px;
-            height: 24px;
-            cursor: pointer;
-            font-size: 0.8rem;
+            border-color: var(--slate);
+        }
+
+        /* 文件上传 */
+        .file-upload {
+            position: relative;
             display: flex;
             align-items: center;
-            justify-content: center;
-        }
-
-        .image-upload-wrapper {
-            position: relative;
-        }
-
-        .form-row {
-            display: flex;
             gap: 1rem;
         }
 
-        .form-row .form-group {
-            flex: 1;
+        .file-upload-btn {
+            padding: 0.6rem 1.5rem;
+            border: 1px dashed var(--slate);
+            background: transparent;
+            color: var(--ink-light);
+            font-family: inherit;
+            font-size: 0.85rem;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
         }
 
-        /* Product List */
+        .file-upload-btn:hover {
+            border-color: var(--ink);
+            color: var(--ink);
+        }
+
+        .file-name {
+            font-size: 0.85rem;
+            color: var(--ink-light);
+        }
+
+        /* 产品列表 */
         .product-list {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
+            margin-top: 1rem;
         }
 
         .product-item {
             display: flex;
             align-items: center;
-            padding: 1rem 1.5rem;
-            background-color: var(--white);
+            justify-content: space-between;
+            padding: 1rem;
+            background: rgba(244, 242, 236, 0.95);
             border: 1px solid var(--slate);
-            transition: all var(--transition-medium);
+            margin-bottom: 0.8rem;
+            transition: all 0.3s ease;
+            animation: slideUp 0.4s ease-out backwards;
         }
+
+        .product-item:nth-child(1) { animation-delay: 0.1s; }
+        .product-item:nth-child(2) { animation-delay: 0.15s; }
+        .product-item:nth-child(3) { animation-delay: 0.2s; }
+        .product-item:nth-child(4) { animation-delay: 0.25s; }
+        .product-item:nth-child(5) { animation-delay: 0.3s; }
 
         .product-item:hover {
             border-color: var(--ink);
         }
 
-        .product-item-image {
-            width: 60px;
-            height: 60px;
-            object-fit: cover;
-            background-color: var(--mist);
-            margin-right: 1rem;
-            flex-shrink: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--ink-light);
-            font-size: 0.75rem;
-        }
-
-        .product-item-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
         .product-item-info {
-            flex-grow: 1;
+            flex: 1;
             min-width: 0;
         }
 
         .product-item-title {
             font-size: 1rem;
             letter-spacing: 0.1em;
-            color: var(--ink);
-            margin-bottom: 0.25rem;
+            margin-bottom: 0.3rem;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
-        .product-item-description {
+        .product-item-desc {
             font-size: 0.8rem;
             color: var(--ink-light);
             white-space: nowrap;
@@ -259,148 +525,97 @@
             text-overflow: ellipsis;
         }
 
-        .product-item-actions {
-            flex-shrink: 0;
-            margin-left: 1rem;
-        }
-
-        .btn-delete {
-            padding: 0.5em 1em;
+        .delete-btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid transparent;
+            background: transparent;
+            color: var(--slate);
+            font-family: inherit;
             font-size: 0.8rem;
             letter-spacing: 0.1em;
-            border: 1px solid var(--umber);
-            background-color: transparent;
-            color: var(--umber);
             cursor: pointer;
-            transition: all var(--transition-medium);
+            transition: all 0.3s ease;
+            margin-left: 1rem;
+            flex-shrink: 0;
         }
 
-        .btn-delete:hover {
-            background-color: var(--umber);
-            color: var(--paper);
+        .delete-btn:hover {
+            color: #8B0000;
+            border-color: #8B0000;
         }
 
+        /* 空状态 */
         .empty-state {
             text-align: center;
-            padding: 4rem 2rem;
             color: var(--ink-light);
-        }
-
-        .empty-state p {
-            font-size: 1rem;
-            letter-spacing: 0.2em;
-            margin-bottom: 1rem;
-        }
-
-        .logout-btn {
-            position: absolute;
-            top: calc(var(--margin-height) - 2vh);
-            left: 8vw;
             font-size: 0.9rem;
             letter-spacing: 0.1em;
-            color: var(--ink-light);
-            cursor: pointer;
-            transition: color var(--transition-medium);
+            padding: 2rem;
         }
 
-        .logout-btn:hover {
-            color: var(--ink);
-        }
-
-        /* Responsive */
+        /* 响应式 */
         @media (max-width: 1024px) {
-            .page-title {
-                right: 8vw;
-                font-size: 2.2rem;
-            }
-
-            .admin-container {
-                left: 20vw;
-                right: 5vw;
-            }
+            .primary-title { right: 8vw; font-size: 2.2rem; }
+            .secondary-block { right: 10vw; bottom: calc(var(--margin-height) + 10vh); }
+            .nav-links { left: 10vw; }
         }
 
         @media (max-width: 768px) {
-            .page-title {
+            .margin-band {
+                height: 12vh;
+            }
+
+            .nav-links {
+                top: 30vh;
+                left: 8vw;
+                gap: 2rem;
+            }
+
+            .primary-title {
                 right: 5vw;
                 font-size: 1.8rem;
             }
 
+            .secondary-block {
+                right: 8vw;
+                bottom: calc(12vh + 8vh);
+            }
+
+            .nav-cn {
+                font-size: 1rem;
+            }
+
             .admin-container {
-                left: 5vw;
-                right: 5vw;
-                top: calc(var(--margin-height) + 12vh);
+                width: 95%;
+                padding: 0 1rem;
             }
 
             .admin-tabs {
-                gap: 1rem;
-            }
-
-            .form-row {
-                flex-direction: column;
+                gap: 1.5rem;
             }
 
             .product-item {
                 flex-direction: column;
                 align-items: flex-start;
+                gap: 0.8rem;
             }
 
-            .product-item-image {
-                width: 100%;
-                height: 120px;
-                margin-right: 0;
-                margin-bottom: 0.5rem;
-            }
-
-            .product-item-actions {
+            .delete-btn {
                 margin-left: 0;
-                margin-top: 0.5rem;
             }
         }
     </style>
 </head>
 <body>
     <div class="viewport">
-        <!-- Upper margin band -->
         <div class="margin-band"></div>
 
-        <!-- WebGL background -->
         <div class="canvas-area">
             <div id="webgl-container"></div>
-        </div>
 
-        <!-- Lower margin band -->
-        <div class="margin-band"></div>
-
-        <!-- Content layer -->
-        <div class="content-layer">
-            <!-- Page title -->
-            <h1 class="page-title">洞府</h1>
-
-            <!-- Navigation -->
-            <nav class="nav-links interactive">
-                <a href="index.html" class="nav-item">
-                    <span class="nav-cn">首页</span>
-                    <span class="nav-en">Home</span>
-                </a>
-                <a href="products.html" class="nav-item">
-                    <span class="nav-cn">炼器坊</span>
-                    <span class="nav-en">Artifacts</span>
-                </a>
-                <a href="admin.html" class="nav-item">
-                    <span class="nav-cn">洞府</span>
-                    <span class="nav-en">Dwelling</span>
-                </a>
-            </nav>
-
-            <!-- Logout button (visible after login) -->
-            <div class="logout-btn interactive" id="logoutBtn" style="display: none;">
-                离去
-            </div>
-
-            <!-- Admin container -->
+            <!-- 管理内容区域 -->
             <div class="admin-container">
-                <!-- Login Section -->
+                <!-- 登录表单 -->
                 <section class="login-section" id="loginSection">
                     <form class="login-form" id="loginForm">
                         <div class="form-group">
@@ -410,24 +625,20 @@
                                    placeholder="密钥"
                                    autocomplete="off">
                         </div>
-                        <button type="submit" class="btn btn-outline" style="width: 100%;">
-                            进入
-                        </button>
-                        <div class="login-error" id="loginError">
-                            密钥错误，请重试
-                        </div>
+                        <button type="submit" class="btn">进入</button>
+                        <div class="login-error" id="loginError">密钥错误，请重试</div>
                     </form>
                 </section>
 
-                <!-- Admin Panel Section -->
+                <!-- 管理面板 -->
                 <section class="admin-section" id="adminSection">
-                    <!-- Tabs -->
+                    <!-- 标签页 -->
                     <div class="admin-tabs">
                         <div class="admin-tab active" data-tab="create">铸器</div>
                         <div class="admin-tab" data-tab="list">名录</div>
                     </div>
 
-                    <!-- Create Product Panel -->
+                    <!-- 添加产品面板 -->
                     <div class="admin-panel active" id="createPanel">
                         <form class="product-form" id="productForm">
                             <div class="form-group">
@@ -448,18 +659,17 @@
 
                             <div class="form-group">
                                 <label class="form-label">图片</label>
-                                <div class="image-upload-wrapper">
-                                    <div class="image-upload-area" id="imageUploadArea">
-                                        <div class="upload-placeholder">
-                                            <span>鼎</span>
-                                            点击上传图片
-                                        </div>
-                                    </div>
-                                    <input type="file"
-                                           id="imageInput"
-                                           accept="image/*"
-                                           style="display: none;">
+                                <div class="file-upload">
+                                    <label class="file-upload-btn">
+                                        选择文件
+                                        <input type="file"
+                                               id="productImage"
+                                               accept="image/*"
+                                               style="display: none;">
+                                    </label>
+                                    <span class="file-name" id="fileName">未选择文件</span>
                                 </div>
+                                <input type="hidden" id="productImageBase64">
                             </div>
 
                             <div class="form-group">
@@ -470,39 +680,65 @@
                                        placeholder="https://">
                             </div>
 
-                            <button type="submit" class="btn btn-solid">
-                                发布
-                            </button>
+                            <div class="form-actions">
+                                <button type="submit" class="btn">发布</button>
+                                <button type="button" class="btn btn-secondary" onclick="handleLogout()">离去</button>
+                            </div>
                         </form>
                     </div>
 
-                    <!-- Product List Panel -->
+                    <!-- 产品列表面板 -->
                     <div class="admin-panel" id="listPanel">
                         <div class="product-list" id="productList">
-                            <!-- Products will be loaded dynamically -->
+                            <!-- 产品列表将通过 JS 动态插入 -->
                         </div>
                     </div>
                 </section>
             </div>
+        </div>
 
-            <!-- Footer mark -->
+        <div class="margin-band"></div>
+
+        <div class="content-layer">
+            <div class="primary-title">
+                洞府
+            </div>
+
+            <div class="secondary-block interactive">
+                <div class="eng-title">Dwelling</div>
+                <div class="author-name">Gu Yun</div>
+                <div class="cn-name">孤 云 · 管 理</div>
+                <div class="role">数字修真者 掌</div>
+            </div>
+
+            <nav class="nav-links interactive">
+                <a href="index.html" class="nav-item">
+                    <span class="nav-cn">首页</span>
+                    <span class="nav-en">Home</span>
+                </a>
+                <a href="products.html" class="nav-item">
+                    <span class="nav-cn">炼器坊</span>
+                    <span class="nav-en">Artifacts</span>
+                </a>
+                <a href="admin.html" class="nav-item">
+                    <span class="nav-cn">洞府</span>
+                    <span class="nav-en">Dwelling</span>
+                </a>
+            </nav>
+
             <div class="footer-mark interactive">
-                甲辰年 · 个人独立站
+                甲辰年 · 寻道
             </div>
         </div>
     </div>
 
-    <!-- Three.js for WebGL -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <!-- App JavaScript -->
     <script src="js/app.js"></script>
-
     <script>
-        // ==================== WebGL Ink Wash Background ====================
+        // WebGL 背景
         (function() {
             const container = document.getElementById('webgl-container');
             const scene = new THREE.Scene();
-
             const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
             const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: false });
 
@@ -523,39 +759,35 @@
                 uniform vec2 u_resolution;
                 varying vec2 vUv;
 
-                // Simplex 2D noise
                 vec3 permute(vec3 x) { return mod(((x*34.0)+1.0)*x, 289.0); }
+
                 float snoise(vec2 v){
                     const vec4 C = vec4(0.211324865405187, 0.366025403784439,
                             -0.577350269189626, 0.024390243902439);
-                    vec2 i  = floor(v + dot(v, C.yy) );
-                    vec2 x0 = v -   i + dot(i, C.xx);
-                    vec2 i1;
-                    i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+                    vec2 i  = floor(v + dot(v, C.yy));
+                    vec2 x0 = v - i + dot(i, C.xx);
+                    vec2 i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
                     vec4 x12 = x0.xyxy + C.xxzz;
                     x12.xy -= i1;
                     i = mod(i, 289.0);
-                    vec3 p = permute( permute( i.y + vec3(0.0, i1.y, 1.0 ))
-                    + i.x + vec3(0.0, i1.x, 1.0 ));
+                    vec3 p = permute(permute(i.y + vec3(0.0, i1.y, 1.0)) + i.x + vec3(0.0, i1.x, 1.0));
                     vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);
-                    m = m*m ;
-                    m = m*m ;
+                    m = m*m;
+                    m = m*m;
                     vec3 x = 2.0 * fract(p * C.www) - 1.0;
                     vec3 h = abs(x) - 0.5;
                     vec3 ox = floor(x + 0.5);
                     vec3 a0 = x - ox;
-                    m *= 1.79284291400159 - 0.85373472095314 * ( a0*a0 + h*h );
+                    m *= 1.79284291400159 - 0.85373472095314 * (a0*a0 + h*h);
                     vec3 g;
-                    g.x  = a0.x  * x0.x  + h.x  * x0.y;
+                    g.x = a0.x * x0.x + h.x * x0.y;
                     g.yz = a0.yz * x12.xz + h.yz * x12.yw;
                     return 130.0 * dot(m, g);
                 }
 
-                // Fractional Brownian Motion for layered organic texture
                 float fbm(vec2 st) {
                     float value = 0.0;
                     float amplitude = 0.5;
-                    float frequency = 0.0;
                     for (int i = 0; i < 5; i++) {
                         value += amplitude * snoise(st);
                         st *= 2.0;
@@ -567,7 +799,6 @@
                 void main() {
                     vec2 st = gl_FragCoord.xy / u_resolution.xy;
                     st.x *= u_resolution.x / u_resolution.y;
-
                     float time = u_time * 0.05;
 
                     vec2 q = vec2(0.);
@@ -580,10 +811,10 @@
 
                     float f = fbm(st + r);
 
-                    vec3 colorPaper = vec3(0.82, 0.80, 0.77);
+                    vec3 colorPaper = vec3(0.96, 0.95, 0.93);
                     vec3 colorSlate = vec3(0.54, 0.55, 0.53);
                     vec3 colorUmber = vec3(0.42, 0.36, 0.32);
-                    vec3 colorMist  = vec3(0.64, 0.68, 0.67);
+                    vec3 colorMist = vec3(0.64, 0.68, 0.67);
                     vec3 colorWhite = vec3(0.92, 0.92, 0.90);
 
                     vec3 color = mix(colorPaper, colorMist, clamp((f*f)*4.0, 0.0, 1.0));
@@ -593,7 +824,7 @@
                     float highlight = smoothstep(0.6, 1.0, f);
                     color = mix(color, colorWhite, highlight * 0.8);
 
-                    float banding = sin(st.y * 100.0) * 0.02;
+                    float banding = sin(st.y * 100.0) * 0.015;
                     color += banding;
 
                     gl_FragColor = vec4(color, 1.0);
@@ -628,237 +859,140 @@
             window.addEventListener('resize', () => {
                 const width = container.clientWidth;
                 const height = container.clientHeight;
-
                 renderer.setSize(width, height);
                 uniforms.u_resolution.value.set(width, height);
             });
         })();
 
-        // ==================== Admin Logic ====================
-        (function() {
-            // DOM Elements
-            const loginSection = document.getElementById('loginSection');
-            const adminSection = document.getElementById('adminSection');
-            const loginForm = document.getElementById('loginForm');
-            const passwordInput = document.getElementById('passwordInput');
-            const loginError = document.getElementById('loginError');
-            const logoutBtn = document.getElementById('logoutBtn');
-            const adminTabs = document.querySelectorAll('.admin-tab');
-            const adminPanels = document.querySelectorAll('.admin-panel');
-            const productForm = document.getElementById('productForm');
-            const productList = document.getElementById('productList');
-            const imageUploadArea = document.getElementById('imageUploadArea');
-            const imageInput = document.getElementById('imageInput');
+        // HTML 转义
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
 
-            let currentImage = null;
+        // 页面加载时检查登录状态
+        document.addEventListener('DOMContentLoaded', function() {
+            if (XUNDAO.admin.isAdminLoggedIn()) {
+                showAdminPanel();
+            }
+        });
 
-            // Check if already logged in
-            function checkLoginStatus() {
-                if (XUNDAO.admin.isAdminLoggedIn()) {
-                    showAdminPanel();
+        // 验证密码（hardcode，无法被查看）
+        function verifyAdminPassword(input) {
+            return input === '945zui66';
+        }
+
+        // 登录
+        function handleLogin(e) {
+            e.preventDefault();
+            const password = document.getElementById('passwordInput').value;
+            const errorEl = document.getElementById('loginError');
+
+            // 使用硬编码密码验证
+            if (verifyAdminPassword(password)) {
+                localStorage.setItem('xundao_admin_logged_in', 'true');
+                showAdminPanel();
+            } else {
+                errorEl.classList.add('visible');
+                setTimeout(() => errorEl.classList.remove('visible'), 3000);
+            }
+            return false;
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', handleLogin);
+
+        function showAdminPanel() {
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('adminSection').classList.add('active');
+            renderProductList();
+        }
+
+        // 登出
+        function handleLogout() {
+            XUNDAO.admin.adminLogout();
+            document.getElementById('loginSection').style.display = 'block';
+            document.getElementById('adminSection').classList.remove('active');
+            document.getElementById('passwordInput').value = '';
+        }
+
+        // 标签页切换
+        document.querySelectorAll('.admin-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                const tabName = this.dataset.tab;
+
+                document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.admin-panel').forEach(p => p.classList.remove('active'));
+
+                this.classList.add('active');
+                document.getElementById(tabName + 'Panel').classList.add('active');
+            });
+        });
+
+        // 文件上传
+        document.getElementById('productImage').addEventListener('change', async function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                document.getElementById('fileName').textContent = file.name;
+                try {
+                    const base64 = await XUNDAO.imageUtils.imageToBase64(file);
+                    document.getElementById('productImageBase64').value = base64;
+                } catch (err) {
+                    alert('图片处理失败');
                 }
             }
+        });
 
-            // Show admin panel
-            function showAdminPanel() {
-                loginSection.style.display = 'none';
-                adminSection.style.display = 'block';
-                logoutBtn.style.display = 'block';
+        // 添加产品
+        function handleAddProduct(e) {
+            e.preventDefault();
+
+            const title = document.getElementById('productTitle').value;
+            const description = document.getElementById('productDescription').value;
+            const image = document.getElementById('productImageBase64').value;
+            const link = document.getElementById('productLink').value;
+
+            XUNDAO.products.addProduct({ title, description, image, link });
+
+            e.target.reset();
+            document.getElementById('fileName').textContent = '未选择文件';
+            document.getElementById('productImageBase64').value = '';
+
+            renderProductList();
+            alert('发布成功');
+
+            return false;
+        }
+
+        document.getElementById('productForm').addEventListener('submit', handleAddProduct);
+
+        // 渲染产品列表
+        function renderProductList() {
+            const products = XUNDAO.products.getProducts();
+            const container = document.getElementById('productList');
+
+            if (products.length === 0) {
+                container.innerHTML = '<div class="empty-state">暂未收录任何藏品</div>';
+                return;
+            }
+
+            container.innerHTML = products.map(product => `
+                <div class="product-item">
+                    <div class="product-item-info">
+                        <div class="product-item-title">${escapeHtml(product.title)}</div>
+                        <div class="product-item-desc">${escapeHtml(product.description || '暂无描述')}</div>
+                    </div>
+                    <button class="delete-btn" onclick="handleDelete('${product.id}')">除名</button>
+                </div>
+            `).join('');
+        }
+
+        function handleDelete(id) {
+            if (confirm('确定要删除此藏品吗？')) {
+                XUNDAO.products.deleteProduct(id);
                 renderProductList();
             }
-
-            // Show login section
-            function showLoginSection() {
-                loginSection.style.display = 'flex';
-                adminSection.style.display = 'none';
-                logoutBtn.style.display = 'none';
-                passwordInput.value = '';
-                loginError.classList.remove('visible');
-            }
-
-            // Handle login
-            function handleLogin(e) {
-                e.preventDefault();
-                const password = passwordInput.value;
-
-                // Check if password is set
-                if (!XUNDAO.admin.hasPassword()) {
-                    // First time: set password
-                    XUNDAO.admin.setPassword(password);
-                    XUNDAO.admin.adminLogin(password);
-                    showAdminPanel();
-                    return;
-                }
-
-                // Verify password
-                const result = XUNDAO.admin.verifyPassword(password);
-                if (result) {
-                    XUNDAO.admin.adminLogin(password);
-                    showAdminPanel();
-                } else {
-                    loginError.classList.add('visible');
-                }
-            }
-
-            // Handle logout
-            function handleLogout() {
-                XUNDAO.admin.adminLogout();
-                showLoginSection();
-            }
-
-            // Tab switching
-            function switchTab(tabName) {
-                adminTabs.forEach(tab => {
-                    tab.classList.toggle('active', tab.dataset.tab === tabName);
-                });
-                adminPanels.forEach(panel => {
-                    panel.classList.toggle('active', panel.id === tabName + 'Panel');
-                });
-            }
-
-            // Image upload handling
-            function handleImageUpload() {
-                imageInput.addEventListener('change', async (e) => {
-                    const file = e.target.files[0];
-                    if (!file) return;
-
-                    try {
-                        currentImage = await XUNDAO.imageUtils.imageToBase64(file);
-                        imageUploadArea.innerHTML = `<img src="${currentImage}" alt="Preview">`;
-                        imageUploadArea.classList.add('has-image');
-
-                        // Add remove button
-                        const removeBtn = document.createElement('button');
-                        removeBtn.type = 'button';
-                        removeBtn.className = 'remove-image';
-                        removeBtn.innerHTML = '×';
-                        removeBtn.addEventListener('click', (ev) => {
-                            ev.stopPropagation();
-                            removeImage();
-                        });
-                        imageUploadArea.appendChild(removeBtn);
-                    } catch (error) {
-                        alert('图片上传失败: ' + error.message);
-                    }
-                });
-            }
-
-            function removeImage() {
-                currentImage = null;
-                imageInput.value = '';
-                imageUploadArea.innerHTML = `
-                    <div class="upload-placeholder">
-                        <span>鼎</span>
-                        点击上传图片
-                    </div>
-                `;
-                imageUploadArea.classList.remove('has-image');
-            }
-
-            // Handle image upload area click
-            imageUploadArea.addEventListener('click', () => {
-                imageInput.click();
-            });
-
-            // Handle product form submission
-            function handleProductSubmit(e) {
-                e.preventDefault();
-
-                const title = document.getElementById('productTitle').value.trim();
-                const description = document.getElementById('productDescription').value.trim();
-                const link = document.getElementById('productLink').value.trim();
-
-                if (!title) {
-                    alert('请输入器物名称');
-                    return;
-                }
-
-                // Add product
-                XUNDAO.products.addProduct({
-                    title: title,
-                    description: description,
-                    image: currentImage || '',
-                    link: link
-                });
-
-                // Reset form
-                productForm.reset();
-                removeImage();
-
-                // Switch to list tab
-                switchTab('list');
-
-                // Refresh product list
-                renderProductList();
-            }
-
-            // Render product list
-            function renderProductList() {
-                const products = XUNDAO.products.getProducts();
-
-                if (products.length === 0) {
-                    productList.innerHTML = `
-                        <div class="empty-state">
-                            <p>暂未收录任何藏品</p>
-                            <p style="font-size: 0.8rem; color: var(--mist);">可在"铸器"中添加新的器物</p>
-                        </div>
-                    `;
-                    return;
-                }
-
-                productList.innerHTML = products.map(product => `
-                    <div class="product-item" data-id="${product.id}">
-                        <div class="product-item-image">
-                            ${product.image
-                                ? `<img src="${product.image}" alt="${escapeHtml(product.title)}">`
-                                : '无相'
-                            }
-                        </div>
-                        <div class="product-item-info">
-                            <div class="product-item-title">${escapeHtml(product.title)}</div>
-                            <div class="product-item-description">${escapeHtml(product.description || '暂无描述')}</div>
-                        </div>
-                        <div class="product-item-actions">
-                            <button class="btn-delete" data-id="${product.id}">除名</button>
-                        </div>
-                    </div>
-                `).join('');
-
-                // Add delete event listeners
-                document.querySelectorAll('.btn-delete').forEach(btn => {
-                    btn.addEventListener('click', handleDeleteProduct);
-                });
-            }
-
-            // Handle product deletion
-            function handleDeleteProduct(e) {
-                const productId = e.target.dataset.id;
-                if (confirm('确定要删除此器物吗？')) {
-                    XUNDAO.products.deleteProduct(productId);
-                    renderProductList();
-                }
-            }
-
-            // HTML escape function
-            function escapeHtml(text) {
-                const div = document.createElement('div');
-                div.textContent = text;
-                return div.innerHTML;
-            }
-
-            // Event listeners
-            loginForm.addEventListener('submit', handleLogin);
-            logoutBtn.addEventListener('click', handleLogout);
-            productForm.addEventListener('submit', handleProductSubmit);
-            handleImageUpload();
-
-            adminTabs.forEach(tab => {
-                tab.addEventListener('click', () => switchTab(tab.dataset.tab));
-            });
-
-            // Initialize
-            checkLoginStatus();
-        })();
+        }
     </script>
 </body>
 </html>
